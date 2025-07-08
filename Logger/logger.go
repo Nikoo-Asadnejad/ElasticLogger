@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
@@ -37,18 +36,12 @@ func NewLogger(esURL, index string) (*Logger, error) {
 	return &Logger{es: es, index: index}, nil
 }
 
-// Log method
-func (l *Logger) Log(level, message string, ctx map[string]string) error {
-	entry := LogEntry{
-		Timestamp: time.Now(),
-		Level:     level,
-		Message:   message,
-		Context:   ctx,
-	}
+func (l *Logger) Log(entry LogEntry) error {
+	entry.Timestamp = time.Now()
 
 	data, err := json.Marshal(entry)
 	if err != nil {
-		return fmt.Errorf("failed to serialize log entry: %w", err)
+		return fmt.Errorf("failed to marshal log entry: %w", err)
 	}
 
 	res, err := l.es.Index(
@@ -58,12 +51,12 @@ func (l *Logger) Log(level, message string, ctx map[string]string) error {
 		l.es.Index.WithRefresh("true"),
 	)
 	if err != nil {
-		return fmt.Errorf("failed to index log to Elasticsearch: %w", err)
+		return fmt.Errorf("failed to index log: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.IsError() {
-		log.Printf("Error indexing log: %s", res.String())
+		return fmt.Errorf("Elasticsearch error: %s", res.String())
 	}
 
 	return nil
