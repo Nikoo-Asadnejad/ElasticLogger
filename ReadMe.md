@@ -17,10 +17,10 @@ ElasticLogger is a Go-based logging service that integrates with Elasticsearch f
 ## Installation(Manual Setup)
 
 1. Clone the repository:
-   ```bash
+```bash
    git clone https://github.com/yourusername/ElasticLogger.git
    cd ElasticLogger
-   ```
+```
 2. Install dependencies:
 ```bash
     go mod tidy
@@ -42,10 +42,10 @@ Docker and Docker Compose installed and running.
 
 ### Running the Services :
 1. Clone the repository:
-   ```bash
+```bash
    git clone https://github.com/yourusername/ElasticLogger.git
    cd ElasticLogger
-   ```
+```
    
 3. Customize the ```config.yml``` file as needed (optional).
 4. Build and run the application and services:
