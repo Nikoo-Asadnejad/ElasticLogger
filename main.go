@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"logger-service/logger"
+	"logger-service/elasticlogger"
 	"net/http"
 )
 
-var logService *logger.Logger
+var logService *elasticlogger.Logger
 
 func main() {
 
 	var err error
-	logService, err = logger.NewLogger("http://localhost:9200", "app-logs")
+	logService, err = elasticlogger.NewLogger("http://localhost:9200", "elastic", "1234", "app-logs")
 	if err != nil {
 		log.Fatal("Failed to create logger:", err)
 	}
@@ -25,12 +25,13 @@ func main() {
 }
 
 func handleLog(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	var entry logger.LogEntry
+	var entry elasticlogger.LogEntry
 	err := json.NewDecoder(r.Body).Decode(&entry)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
