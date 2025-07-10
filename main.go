@@ -8,12 +8,12 @@ import (
 	"net/http"
 )
 
-var logService *elasticlogger.Logger
+var logService elasticlogger.ILogger
 
 func main() {
 
 	var err error
-	logService, err = elasticlogger.NewLogger("http://localhost:9200", "elastic", "1234", "app-logs")
+	logService, err = elasticlogger.NewElasticLogger("http://localhost:9200", "elastic", "1234", "app-logs")
 	if err != nil {
 		log.Fatal("Failed to create logger:", err)
 	}

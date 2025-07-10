@@ -10,7 +10,11 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 )
 
-type Logger struct {
+type ILogger interface {
+	Log(entry LogEntry) error
+}
+
+type ElasticLogger struct {
 	elasticClient *elasticsearch.Client
 	index         string
 }
@@ -27,7 +31,7 @@ type LogEntry struct {
 }
 
 // Constructor
-func NewLogger(elasticUrl, username, password, index string) (*Logger, error) {
+func NewElasticLogger(elasticUrl, username, password, index string) (*ElasticLogger, error) {
 
 	elasticConfig := elasticsearch.Config{
 		Addresses: []string{elasticUrl},
@@ -40,10 +44,10 @@ func NewLogger(elasticUrl, username, password, index string) (*Logger, error) {
 		return nil, fmt.Errorf("failed to create Elasticsearch client: %w", err)
 	}
 
-	return &Logger{elasticClient: elasticClient, index: index}, nil
+	return &ElasticLogger{elasticClient: elasticClient, index: index}, nil
 }
 
-func (logger *Logger) Log(entry LogEntry) error {
+func (logger *ElasticLogger) Log(entry LogEntry) error {
 
 	entry.Timestamp = time.Now()
 
