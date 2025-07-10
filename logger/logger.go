@@ -1,4 +1,4 @@
-package elasticlogger
+package logger
 
 import (
 	"bytes"

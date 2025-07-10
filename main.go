@@ -4,18 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"logger-service/elasticlogger"
+	"logger-service/logger"
 	"net/http"
 
 	"github.com/streadway/amqp"
 )
 
-var logService elasticlogger.ILogger
+var logService logger.ILogger
 
 func main() {
 
 	var err error
-	logService, err = elasticlogger.NewElasticLogger("http://localhost:9200", "elastic", "1234", "app-logs")
+	logService, err = logger.NewElasticLogger("http://localhost:9200", "elastic", "1234", "app-logs")
 	if err != nil {
 		log.Fatal("Failed to create logger:", err)
 	}
@@ -35,7 +35,7 @@ func handleLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var entry elasticlogger.LogEntry
+	var entry logger.LogEntry
 	err := json.NewDecoder(r.Body).Decode(&entry)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
@@ -97,7 +97,7 @@ func startRabbitMQConsumer() {
 
 	fmt.Println("RabbitMQ consumer started. Waiting for messages...")
 	for msg := range msgs {
-		var entry elasticlogger.LogEntry
+		var entry logger.LogEntry
 		err := json.Unmarshal(msg.Body, &entry)
 		if err != nil {
 			log.Printf("Failed to parse message: %v", err)
