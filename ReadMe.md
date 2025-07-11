@@ -26,7 +26,7 @@ ElasticLogger is a Go-based logging service that integrates with Elasticsearch f
     go mod tidy
 ```    
 
-3. Edit ```config.yml`` file with your configs
+3. Edit ```config.yml`` file with your configs.
 
 3. Start Elasticsearch and RabbitMQ:
 

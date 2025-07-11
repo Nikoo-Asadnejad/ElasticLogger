@@ -1,0 +1,8 @@
+elasticsearch:
+  url: "http://localhost:9200"
+  username: "elastic"
+  password: "1234"
+  index: "app-logs"
+
+rabbitmq:
+  connection_string: "amqp://guest:guest@localhost:5672/"

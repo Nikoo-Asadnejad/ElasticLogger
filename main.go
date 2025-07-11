@@ -115,14 +115,12 @@ func startRabbitMQConsumer() {
 }
 
 func loadConfig() {
-	viper.SetConfigName("config") // Name of the config file (without extension)
-	viper.SetConfigType("yaml")   // Config file type
-	viper.AddConfigPath(".")      // Path to look for the config file
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
 
-	// Read environment variables
 	viper.AutomaticEnv()
 
-	// Load the config file
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Error reading config file: %v", err)
