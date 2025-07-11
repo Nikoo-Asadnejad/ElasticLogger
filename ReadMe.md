@@ -14,25 +14,48 @@ ElasticLogger is a Go-based logging service that integrates with Elasticsearch f
 - Elasticsearch 8.x
 - RabbitMQ
 
-## Installation
+## Installation(Manual Setup)
 
 1. Clone the repository:
-   ```bash
+```bash
    git clone https://github.com/yourusername/ElasticLogger.git
    cd ElasticLogger
-   ```
+```
 2. Install dependencies:
 ```bash
     go mod tidy
 ```    
 
-3. Edit ```config.yml`` file with your configs.
+3. Customize the ```config.yml``` file as needed (optional).
 
 3. Start Elasticsearch and RabbitMQ:
 
-## Usage
-
-Running the Application :
+4. Run the application:
 ```bash
-    go run main.go
-```    
+   go run main.go
+```
+
+##  🐳 Running with Docker Compose (Recommended)
+
+### Prerequisites
+Docker and Docker Compose installed and running.
+
+### Running the Services :
+1. Clone the repository:
+```bash
+   git clone https://github.com/yourusername/ElasticLogger.git
+   cd ElasticLogger
+```
+   
+3. Customize the ```config.yml``` file as needed (optional).
+4. Build and run the application and services:
+
+```bash
+   docker-compose up --build
+```
+
+### Stopping the Services
+```bash
+docker-compose down
+```
+
