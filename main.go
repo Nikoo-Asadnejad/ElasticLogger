@@ -1,21 +1,23 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
+	"logger-service/Internal/config"
+	rabbitMqConsumer "logger-service/internal/consumer"
 	"net/http"
 
-	"logger-service/logger"
+	"logger-service/internal/api"
+	"logger-service/internal/logger"
 
 	"github.com/spf13/viper"
-	"github.com/streadway/amqp"
 )
 
 var logService logger.ILogger
 
 func main() {
-	loadConfig()
+
+	config.Load()
 
 	var err error
 	logService, err = logger.NewElasticLogger(
@@ -28,101 +30,9 @@ func main() {
 		log.Fatal("Failed to create logger:", err)
 	}
 
-	go startRabbitMQConsumer()
+	go rabbitMqConsumer.StartConsumer(logService, viper.GetString("rabbitmq.connection_string"))
 
-	http.HandleFunc("/log", handleLog)
+	http.HandleFunc("/log", api.HandleLog(logService))
 	fmt.Println("Listening on http://localhost:8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-func handleLog(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var entry logger.LogEntry
-	err := json.NewDecoder(r.Body).Decode(&entry)
-	if err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-
-	err = logService.Log(entry)
-	if err != nil {
-		http.Error(w, "Failed to log: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintln(w, "Log entry created")
-}
-
-func startRabbitMQConsumer() {
-	conn, err := amqp.Dial(viper.GetString("rabbitmq.connection_string"))
-	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
-	}
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		log.Fatalf("Failed to open a channel: %v", err)
-	}
-	defer ch.Close()
-
-	q, err := ch.QueueDeclare(
-		"log_entries", // queue name
-		true,          // durable
-		false,         // auto-delete
-		false,         // exclusive
-		false,         // no-wait
-		nil,           // arguments
-	)
-	if err != nil {
-		log.Fatalf("Failed to declare a queue: %v", err)
-	}
-
-	msgs, err := ch.Consume(
-		q.Name, // queue name
-		"",     // consumer tag
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // arguments
-	)
-	if err != nil {
-		log.Fatalf("Failed to register a consumer: %v", err)
-	}
-
-	fmt.Println("RabbitMQ consumer started. Waiting for messages...")
-	for msg := range msgs {
-		var entry logger.LogEntry
-		err := json.Unmarshal(msg.Body, &entry)
-		if err != nil {
-			log.Printf("Failed to parse message: %v", err)
-			continue
-		}
-
-		err = logService.Log(entry)
-		if err != nil {
-			log.Printf("Failed to log entry: %v", err)
-		} else {
-			fmt.Println("Log entry successfully logged:", entry)
-		}
-	}
-}
-
-func loadConfig() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-
-	viper.AutomaticEnv()
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Fatalf("Error reading config file: %v", err)
-	}
 }

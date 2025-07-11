@@ -10,27 +10,11 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 )
 
-type ILogger interface {
-	Log(entry LogEntry) error
-}
-
 type ElasticLogger struct {
 	elasticClient *elasticsearch.Client
 	index         string
 }
 
-type LogEntry struct {
-	Timestamp time.Time         `json:"timestamp"`
-	Level     string            `json:"level"`
-	Message   string            `json:"message"`
-	Context   map[string]string `json:"context,omitempty"`
-	TraceId   string            `json:"trace_id,omitempty"`
-	SpanId    string            `json:"span_id,omitempty"`
-	LogId     string            `json:"log_id,omitempty"`
-	Type      string            `json:"type,omitempty"`
-}
-
-// Constructor
 func NewElasticLogger(elasticUrl, username, password, index string) (*ElasticLogger, error) {
 
 	elasticConfig := elasticsearch.Config{

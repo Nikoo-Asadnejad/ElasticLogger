@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-
-	"logger-service/logger"
+	"logger-service/internal/logger"
 
 	"github.com/streadway/amqp"
 )

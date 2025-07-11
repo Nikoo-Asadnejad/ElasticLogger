@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"logger-service/logger"
+	"logger-service/internal/logger"
 	"net/http"
 )
 
